@@ -1,33 +1,33 @@
-document.addEventListener('DOMContentLoaded', () => {
-  const loginBtn = document.getElementById('login-btn');
-  const postBtn = document.getElementById('post-btn');
-  const userDashboard = document.getElementById('user-dashboard');
-  const loginForm = document.getElementById('login-form');
-  const usernameInput = document.getElementById('username');
-  const userUsernameSpan = document.getElementById('user-username');
-  const postContent = document.getElementById('post-content');
-  const postList = document.getElementById('post-list');
-
-  loginBtn.addEventListener('click', () => {
-    const username = usernameInput.value.trim();
-    if (username) {
-      userUsernameSpan.textContent = username;
-      loginForm.style.display = 'none';
-      userDashboard.style.display = 'block';
-    } else {
-      alert('Please enter a username');
-    }
-  });
-
-  postBtn.addEventListener('click', () => {
-    const content = postContent.value.trim();
-    if (content) {
-      const listItem = document.createElement('li');
-      listItem.textContent = `${userUsernameSpan.textContent}: ${content}`;
-      postList.appendChild(listItem);
-      postContent.value = '';
-    } else {
-      alert('Please write something to post');
-    }
-  });
-});
+d<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <title>Microblogging App</title>
+</head>
+<body>
+    <header>
+        <h1>Microblogging App</h1>
+    </header>
+    <main>
+        <div id="login-form">
+            <h2>Login</h2>
+            <input type="text" id="username" placeholder="Username" required>
+            <button id="login-btn">Login</button>
+            <p id="login-error" class="hidden">Please enter a username</p>
+        </div>
+        <div id="user-dashboard" class="hidden">
+            <h2>Welcome, <span id="user-username"></span>!</h2>
+            <textarea id="post-content" placeholder="Write your post..." required></textarea>
+            <button id="post-btn">Post</button>
+            <p id="post-error" class="hidden">Please write something to post</p>
+        </div>
+        <div id="feed">
+            <h2>Feed</h2>
+            <ul id="post-list"></ul>
+        </div>
+    </main>
+    <script src="app.js"></script>
+</body>
+</html>

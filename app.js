@@ -1,61 +1,91 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const loginBtn = document.getElementById('login-btn');
-    const postBtn = document.getElementById('post-btn');
-    const userDashboard = document.getElementById('user-dashboard');
-    const loginForm = document.getElementById('login-form');
+document.getElementById('login-btn').addEventListener('click', function() {
     const usernameInput = document.getElementById('username');
-    const userUsernameSpan = document.getElementById('user-username');
-    const postContent = document.getElementById('post-content');
-    const postList = document.getElementById('post-list');
-    const loginError = document.getElementById('login-error');
-    const postError = document.getElementById('post-error');
+    const passwordInput = document.getElementById('password');
+    const username = usernameInput.value.trim();
+    const password = passwordInput.value.trim();
 
-    loginBtn.addEventListener('click', () => {
-        const username = usernameInput.value.trim();
-        if (username) {
-            userUsernameSpan.textContent = username;
-            loginForm.classList.add('hidden');
-            userDashboard.classList.remove('hidden');
-            loginError.classList.add('hidden');
-        } else {
-            loginError.classList.remove('hidden');
-        }
-    });
+    if (username && password) {
+        document.getElementById('user-username').textContent = username;
+        document.getElementById('login-form').classList.add('hidden');
+        document.getElementById('user-dashboard').classList.remove('hidden');
+        document.getElementById('post-error').classList.add('hidden');
+        document.getElementById('login-error').classList.add('hidden');
+        usernameInput.value = ''; // Clear input
+        passwordInput.value = ''; // Clear input
+    } else {
+        document.getElementById('login-error').classList.remove('hidden');
+    }
+});
 
-    postBtn.addEventListener('click', () => {
-        const content = postContent.value.trim();
-        if (content) {
-            const listItem = document.createElement('li');
-            listItem.innerHTML = `
-                ${userUsernameSpan.textContent}: ${content}
+document.getElementById('post-btn').addEventListener('click', function() {
+    const postContent = document.getElementById('post-content').value.trim();
+    const postImage = document.getElementById('post-image').files[0];
+
+    if (postContent || postImage) {
+        const postList = document.getElementById('post-list');
+        const li = document.createElement('li');
+        li.innerHTML = `
+            <p>${postContent}</p>
+            ${postImage ? `<img src="${URL.createObjectURL(postImage)}" alt="Post Image" class="post-image"/>` : ''}
+            <div class="reaction-buttons">
                 <button class="like-btn">Like</button>
-                <span class="like-count">0</span>
-            `;
-            postList.appendChild(listItem);
-            postContent.value = '';
-            postError.classList.add('hidden');
-        } else {
-            postError.classList.remove('hidden');
-        }
-    });
+                <button class="dislike-btn">Dislike</button>
+                <span class="like-count">0</span> Likes
+                <span class="dislike-count">0</span> Dislikes
+            </div>
+            <div class="comment-section">
+                <input type="text" class="comment-input" placeholder="Add a comment..." />
+                <button class="comment-btn">Comment</button>
+                <ul class="comments-list"></ul>
+            </div>
+        `;
+        postList.appendChild(li);
+        
+        document.getElementById('post-content').value = ''; // Clear textarea
+        document.getElementById('post-image').value = ''; // Clear file input
+        document.getElementById('post-error').classList.add('hidden');
 
-    // Delegate event listener for dynamically added like buttons
-    postList.addEventListener('click', (event) => {
-        if (event.target.classList.contains('like-btn')) {
-            const likeBtn = event.target;
-            const likeCountSpan = likeBtn.nextElementSibling;
-            let likeCount = parseInt(likeCountSpan.textContent);
-            
-            // Toggle "liked" class and update like count
-            if (likeBtn.classList.contains('liked')) {
-                likeBtn.classList.remove('liked');
-                likeCount--;
-            } else {
-                likeBtn.classList.add('liked');
-                likeCount++;
+        // Show the feed now that there's at least one post
+        document.getElementById('feed').classList.remove('hidden');
+
+        // Add event listeners for like, dislike, and comment buttons
+        const likeBtn = li.querySelector('.like-btn');
+        const dislikeBtn = li.querySelector('.dislike-btn');
+        const likeCount = li.querySelector('.like-count');
+        const dislikeCount = li.querySelector('.dislike-count');
+        const commentInput = li.querySelector('.comment-input');
+        const commentBtn = li.querySelector('.comment-btn');
+        const commentsList = li.querySelector('.comments-list');
+
+        likeBtn.addEventListener('click', function() {
+            const currentLikes = parseInt(likeCount.textContent);
+            likeCount.textContent = currentLikes + 1;
+        });
+
+        dislikeBtn.addEventListener('click', function() {
+            const currentDislikes = parseInt(dislikeCount.textContent);
+            dislikeCount.textContent = currentDislikes + 1;
+        });
+
+        commentBtn.addEventListener('click', function() {
+            const commentText = commentInput.value.trim();
+            if (commentText) {
+                const commentLi = document.createElement('li');
+                commentLi.textContent = commentText;
+                commentsList.appendChild(commentLi);
+                commentInput.value = ''; // Clear input
             }
+        });
+    } else {
+        document.getElementById('post-error').classList.remove('hidden');
+    }
+});
 
-            likeCountSpan.textContent = likeCount;
-        }
-    });
+// Logout functionality
+document.getElementById('logout-btn').addEventListener('click', function() {
+    document.getElementById('user-dashboard').classList.add('hidden');
+    document.getElementById('feed').classList.add('hidden');
+    document.getElementById('login-form').classList.remove('hidden');
+    document.getElementById('username').value = ''; // Clear input
+    document.getElementById('password').value = ''; // Clear input
 });

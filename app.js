@@ -1,9 +1,9 @@
-// Load existing data from localStorage
 document.addEventListener('DOMContentLoaded', function() {
     const posts = JSON.parse(localStorage.getItem('posts')) || [];
     posts.forEach(post => {
         createPost(post.content, post.image, post.likes, post.dislikes, post.comments);
     });
+    updatePostCount(posts.length);
 });
 
 document.getElementById('login-btn').addEventListener('click', function() {
@@ -18,8 +18,8 @@ document.getElementById('login-btn').addEventListener('click', function() {
         document.getElementById('user-dashboard').classList.remove('hidden');
         document.getElementById('post-error').classList.add('hidden');
         document.getElementById('login-error').classList.add('hidden');
-        usernameInput.value = ''; // Clear input
-        passwordInput.value = ''; // Clear input
+        usernameInput.value = '';
+        passwordInput.value = '';
     } else {
         document.getElementById('login-error').classList.remove('hidden');
     }
@@ -31,11 +31,9 @@ document.getElementById('post-btn').addEventListener('click', function() {
 
     if (postContent || postImage) {
         createPost(postContent, postImage ? URL.createObjectURL(postImage) : '', 0, 0, []);
-        document.getElementById('post-content').value = ''; // Clear textarea
-        document.getElementById('post-image').value = ''; // Clear file input
+        document.getElementById('post-content').value = '';
+        document.getElementById('post-image').value = '';
         document.getElementById('post-error').classList.add('hidden');
-
-        // Show the feed now that there's at least one post
         document.getElementById('feed').classList.remove('hidden');
     } else {
         document.getElementById('post-error').classList.remove('hidden');
@@ -45,7 +43,7 @@ document.getElementById('post-btn').addEventListener('click', function() {
 function createPost(content, image, likes, dislikes, comments) {
     const postList = document.getElementById('post-list');
     const li = document.createElement('li');
-    
+
     li.innerHTML = `
         <p>${content}</p>
         ${image ? `<img src="${image}" alt="Post Image" class="post-image"/>` : ''}
@@ -58,12 +56,12 @@ function createPost(content, image, likes, dislikes, comments) {
         <div class="comment-section">
             <input type="text" class="comment-input" placeholder="Add a comment..." />
             <button class="comment-btn">Comment</button>
+            <span class="comment-count">0 Comments</span>
             <ul class="comments-list"></ul>
         </div>
     `;
     postList.appendChild(li);
-    
-    // Initialize like and dislike buttons
+
     const likeBtn = li.querySelector('.like-btn');
     const dislikeBtn = li.querySelector('.dislike-btn');
     const likeCount = li.querySelector('.like-count');
@@ -71,6 +69,7 @@ function createPost(content, image, likes, dislikes, comments) {
     const commentInput = li.querySelector('.comment-input');
     const commentBtn = li.querySelector('.comment-btn');
     const commentsList = li.querySelector('.comments-list');
+    const commentCount = li.querySelector('.comment-count');
 
     likeBtn.addEventListener('click', function() {
         likes++;
@@ -98,27 +97,16 @@ function createPost(content, image, likes, dislikes, comments) {
                 </div>
             `;
             commentsList.appendChild(commentLi);
-            commentInput.value = ''; // Clear input
+            commentInput.value = '';
 
-            // Add event listeners for comment reactions
-            const likeCommentBtn = commentLi.querySelector('.like-comment-btn');
-            const dislikeCommentBtn = commentLi.querySelector('.dislike-comment-btn');
-            const commentLikeCount = commentLi.querySelector('.comment-like-count');
-            const commentDislikeCount = commentLi.querySelector('.comment-dislike-count');
+            const currentCommentCount = parseInt(commentCount.textContent) + 1;
+            commentCount.textContent = `${currentCommentCount} Comments`;
 
-            likeCommentBtn.addEventListener('click', function() {
-                const currentCommentLikes = parseInt(commentLikeCount.textContent);
-                commentLikeCount.textContent = currentCommentLikes + 1;
-            });
-
-            dislikeCommentBtn.addEventListener('click', function() {
-                const currentCommentDislikes = parseInt(commentDislikeCount.textContent);
-                commentDislikeCount.textContent = currentCommentDislikes + 1;
-            });
+            initializeCommentReactions(commentLi);
+            savePosts();
         }
     });
 
-    // Restore comments if any
     comments.forEach(comment => {
         const commentLi = document.createElement('li');
         commentLi.innerHTML = `
@@ -131,24 +119,32 @@ function createPost(content, image, likes, dislikes, comments) {
             </div>
         `;
         commentsList.appendChild(commentLi);
-
-        const likeCommentBtn = commentLi.querySelector('.like-comment-btn');
-        const dislikeCommentBtn = commentLi.querySelector('.dislike-comment-btn');
-        const commentLikeCount = commentLi.querySelector('.comment-like-count');
-        const commentDislikeCount = commentLi.querySelector('.comment-dislike-count');
-
-        likeCommentBtn.addEventListener('click', function() {
-            const currentCommentLikes = parseInt(commentLikeCount.textContent);
-            commentLikeCount.textContent = currentCommentLikes + 1;
-        });
-
-        dislikeCommentBtn.addEventListener('click', function() {
-            const currentCommentDislikes = parseInt(commentDislikeCount.textContent);
-            commentDislikeCount.textContent = currentCommentDislikes + 1;
-        });
+        const currentCommentCount = parseInt(commentCount.textContent) + 1;
+        commentCount.textContent = `${currentCommentCount} Comments`;
+        initializeCommentReactions(commentLi);
     });
 
-    savePosts(); // Save updated post to localStorage
+    savePosts();
+    updatePostCount();
+}
+
+function initializeCommentReactions(commentLi) {
+    const likeCommentBtn = commentLi.querySelector('.like-comment-btn');
+    const dislikeCommentBtn = commentLi.querySelector('.dislike-comment-btn');
+    const commentLikeCount = commentLi.querySelector('.comment-like-count');
+    const commentDislikeCount = commentLi.querySelector('.comment-dislike-count');
+
+    likeCommentBtn.addEventListener('click', function() {
+        const currentCommentLikes = parseInt(commentLikeCount.textContent);
+        commentLikeCount.textContent = currentCommentLikes + 1;
+        savePosts();
+    });
+
+    dislikeCommentBtn.addEventListener('click', function() {
+        const currentCommentDislikes = parseInt(commentDislikeCount.textContent);
+        commentDislikeCount.textContent = currentCommentDislikes + 1;
+        savePosts();
+    });
 }
 
 function savePosts() {
@@ -172,12 +168,16 @@ function savePosts() {
     localStorage.setItem('posts', JSON.stringify(posts));
 }
 
+function updatePostCount(count = 0) {
+    document.getElementById('post-count').textContent = `Total Posts: ${count}`;
+}
+
 // Logout functionality
 document.getElementById('logout-btn').addEventListener('click', function() {
     document.getElementById('user-dashboard').classList.add('hidden');
     document.getElementById('feed').classList.add('hidden');
     document.getElementById('login-form').classList.remove('hidden');
-    document.getElementById('username').value = ''; // Clear input
-    document.getElementById('password').value = ''; // Clear input
+    document.getElementById('username').value = '';
+    document.getElementById('password').value = '';
 });
 

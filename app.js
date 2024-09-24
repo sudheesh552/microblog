@@ -24,6 +24,7 @@ document.getElementById('post-btn').addEventListener('click', function() {
     if (postContent || postImage) {
         const postList = document.getElementById('post-list');
         const li = document.createElement('li');
+        
         li.innerHTML = `
             <p>${postContent}</p>
             ${postImage ? `<img src="${URL.createObjectURL(postImage)}" alt="Post Image" class="post-image"/>` : ''}
@@ -71,9 +72,33 @@ document.getElementById('post-btn').addEventListener('click', function() {
             const commentText = commentInput.value.trim();
             if (commentText) {
                 const commentLi = document.createElement('li');
-                commentLi.textContent = commentText;
+                commentLi.innerHTML = `
+                    ${commentText}
+                    <div class="comment-reactions">
+                        <button class="like-comment-btn">Like</button>
+                        <button class="dislike-comment-btn">Dislike</button>
+                        <span class="comment-like-count">0</span> Likes
+                        <span class="comment-dislike-count">0</span> Dislikes
+                    </div>
+                `;
                 commentsList.appendChild(commentLi);
                 commentInput.value = ''; // Clear input
+
+                // Add event listeners for like and dislike on the comment
+                const likeCommentBtn = commentLi.querySelector('.like-comment-btn');
+                const dislikeCommentBtn = commentLi.querySelector('.dislike-comment-btn');
+                const commentLikeCount = commentLi.querySelector('.comment-like-count');
+                const commentDislikeCount = commentLi.querySelector('.comment-dislike-count');
+
+                likeCommentBtn.addEventListener('click', function() {
+                    const currentCommentLikes = parseInt(commentLikeCount.textContent);
+                    commentLikeCount.textContent = currentCommentLikes + 1;
+                });
+
+                dislikeCommentBtn.addEventListener('click', function() {
+                    const currentCommentDislikes = parseInt(commentDislikeCount.textContent);
+                    commentDislikeCount.textContent = currentCommentDislikes + 1;
+                });
             }
         });
     } else {

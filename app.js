@@ -180,4 +180,3 @@ document.getElementById('logout-btn').addEventListener('click', function() {
     document.getElementById('username').value = '';
     document.getElementById('password').value = '';
 });
-

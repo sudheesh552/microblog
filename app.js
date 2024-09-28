@@ -1,12 +1,12 @@
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     const posts = JSON.parse(localStorage.getItem('posts')) || [];
     posts.forEach(post => {
         createPost(post.content, post.image, post.likes, post.dislikes, post.comments);
     });
-    updatePostCount(posts.length);
+    updatePostCount(posts.length); // Update post count correctly after rendering posts
 });
 
-document.getElementById('login-btn').addEventListener('click', function() {
+document.getElementById('login-btn').addEventListener('click', function () {
     const usernameInput = document.getElementById('username');
     const passwordInput = document.getElementById('password');
     const username = usernameInput.value.trim();
@@ -16,6 +16,7 @@ document.getElementById('login-btn').addEventListener('click', function() {
         document.getElementById('user-username').textContent = username;
         document.getElementById('login-form').classList.add('hidden');
         document.getElementById('user-dashboard').classList.remove('hidden');
+        document.getElementById('feed').classList.remove('hidden');
         document.getElementById('post-error').classList.add('hidden');
         document.getElementById('login-error').classList.add('hidden');
         usernameInput.value = '';
@@ -25,20 +26,25 @@ document.getElementById('login-btn').addEventListener('click', function() {
     }
 });
 
-document.getElementById('post-btn').addEventListener('click', function() {
+document.getElementById('post-btn').addEventListener('click', function () {
     const postContent = document.getElementById('post-content').value.trim();
     const postImage = document.getElementById('post-image').files[0];
 
     if (postContent || postImage) {
         createPost(postContent, postImage ? URL.createObjectURL(postImage) : '', 0, 0, []);
         document.getElementById('post-content').value = '';
-        document.getElementById('post-image').value = '';
+        resetImageInput(); // Function to reset the file input field
         document.getElementById('post-error').classList.add('hidden');
-        document.getElementById('feed').classList.remove('hidden');
     } else {
         document.getElementById('post-error').classList.remove('hidden');
     }
 });
+
+function resetImageInput() {
+    const postImageInput = document.getElementById('post-image');
+    const newInput = postImageInput.cloneNode();
+    postImageInput.replaceWith(newInput);
+}
 
 function createPost(content, image, likes, dislikes, comments) {
     const postList = document.getElementById('post-list');
@@ -60,6 +66,7 @@ function createPost(content, image, likes, dislikes, comments) {
             <ul class="comments-list"></ul>
         </div>
     `;
+
     postList.appendChild(li);
 
     const likeBtn = li.querySelector('.like-btn');
@@ -71,19 +78,19 @@ function createPost(content, image, likes, dislikes, comments) {
     const commentsList = li.querySelector('.comments-list');
     const commentCount = li.querySelector('.comment-count');
 
-    likeBtn.addEventListener('click', function() {
+    likeBtn.addEventListener('click', function () {
         likes++;
         likeCount.textContent = likes;
         savePosts();
     });
 
-    dislikeBtn.addEventListener('click', function() {
+    dislikeBtn.addEventListener('click', function () {
         dislikes++;
         dislikeCount.textContent = dislikes;
         savePosts();
     });
 
-    commentBtn.addEventListener('click', function() {
+    commentBtn.addEventListener('click', function () {
         const commentText = commentInput.value.trim();
         if (commentText) {
             const commentLi = document.createElement('li');
@@ -125,7 +132,7 @@ function createPost(content, image, likes, dislikes, comments) {
     });
 
     savePosts();
-    updatePostCount();
+    updatePostCount(document.getElementById('post-list').children.length); // Correct post count update
 }
 
 function initializeCommentReactions(commentLi) {
@@ -134,13 +141,13 @@ function initializeCommentReactions(commentLi) {
     const commentLikeCount = commentLi.querySelector('.comment-like-count');
     const commentDislikeCount = commentLi.querySelector('.comment-dislike-count');
 
-    likeCommentBtn.addEventListener('click', function() {
+    likeCommentBtn.addEventListener('click', function () {
         const currentCommentLikes = parseInt(commentLikeCount.textContent);
         commentLikeCount.textContent = currentCommentLikes + 1;
         savePosts();
     });
 
-    dislikeCommentBtn.addEventListener('click', function() {
+    dislikeCommentBtn.addEventListener('click', function () {
         const currentCommentDislikes = parseInt(commentDislikeCount.textContent);
         commentDislikeCount.textContent = currentCommentDislikes + 1;
         savePosts();
@@ -168,12 +175,11 @@ function savePosts() {
     localStorage.setItem('posts', JSON.stringify(posts));
 }
 
-function updatePostCount(count = 0) {
+function updatePostCount(count) {
     document.getElementById('post-count').textContent = `Total Posts: ${count}`;
 }
 
-// Logout functionality
-document.getElementById('logout-btn').addEventListener('click', function() {
+document.getElementById('logout-btn').addEventListener('click', function () {
     document.getElementById('user-dashboard').classList.add('hidden');
     document.getElementById('feed').classList.add('hidden');
     document.getElementById('login-form').classList.remove('hidden');

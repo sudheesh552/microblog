@@ -4,6 +4,16 @@ document.addEventListener('DOMContentLoaded', function() {
         createPost(post.content, post.image, post.likes, post.dislikes, post.comments);
     });
     updatePostCount(); // Update post count after loading existing posts
+     document.getElementById('follow-btn').addEventListener('click', function() {
+        const followBtn = document.getElementById('follow-btn');
+        if (followBtn.textContent === 'Follow') {
+            followBtn.textContent = 'Following'; // Change to Following
+            followBtn.style.backgroundColor = '#007bff'; // Change color for better UX
+        } else {
+            followBtn.textContent = 'Follow'; // Change to Follow
+            followBtn.style.backgroundColor = ''; // Reset color
+        }
+    });
 });
 
 document.getElementById('login-btn').addEventListener('click', function() {
@@ -45,22 +55,21 @@ function createPost(content, image, likes, dislikes, comments) {
     const li = document.createElement('li');
 
     li.innerHTML = `
-        <p>${content}</p>
+         <p>${content} 😊</p> <!-- Added emoji -->
         ${image ? `<img src="${image}" alt="Post Image" class="post-image"/>` : ''}
         <div class="reaction-buttons">
-            <button class="like-btn">Like</button>
-            <button class="dislike-btn">Dislike</button>
+            <button class="like-btn">👍 Like</button> <!-- Added emoji -->
+            <button class="dislike-btn">👎 Dislike</button> <!-- Added emoji -->
             <span class="like-count">${likes}</span> Likes
             <span class="dislike-count">${dislikes}</span> Dislikes
-            <button class="delete-btn">Delete</button> <!-- Delete Button -->
+            <button class="delete-btn">🗑️ Delete</button> <!-- Added emoji -->
         </div>
         <div class="comment-section">
             <input type="text" class="comment-input" placeholder="Add a comment..." />
-            <button class="comment-btn">Comment</button>
+            <button class="comment-btn">💬 Comment</button> <!-- Added emoji -->
             <span class="comment-count">0 Comments</span>
             <ul class="comments-list"></ul>
-        </div>
-    `;
+        </div>    `;
     postList.appendChild(li);
 
     // Update counts and event listeners
@@ -184,12 +193,3 @@ function updatePostCount() {
     const count = postList.children.length; // Count the number of posts
     document.getElementById('post-count').textContent = `Total Posts: ${count}`;
 }
-
-// Logout functionality
-document.getElementById('logout-btn').addEventListener('click', function() {
-    document.getElementById('user-dashboard').classList.add('hidden');
-    document.getElementById('feed').classList.add('hidden');
-    document.getElementById('login-form').classList.remove('hidden');
-    document.getElementById('username').value = '';
-    document.getElementById('password').value = '';
-});
